@@ -1,0 +1,34 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql" // <--- IMPORTANT: TiDB speaks MySQL
+  url      = env("DATABASE_URL")
+}
+
+// Stores the overall Trip Plan
+model Trip {
+  id          String   @id @default(cuid())
+  userId      String?  // Optional for now (until we add login)
+  destinations String  // "Japan, Korea"
+  budget      String   // "Medium"
+  startDate   DateTime
+  duration    Int
+  createdAt   DateTime @default(now())
+  
+  // Link to daily itineraries
+  days        Day[]
+}
+
+// Stores details for each day
+model Day {
+  id          String   @id @default(cuid())
+  tripId      String
+  dayNumber   Int
+  summary     String   @db.Text // Long text for AI summary
+  
+  trip        Trip     @relation(fields: [tripId], references: [id])
+}
